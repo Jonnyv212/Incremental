@@ -5,16 +5,21 @@ class App extends Component {
   state = {
     data: [],
     gameText: "Waiting to start.",
+    gameText2: "Number of items found: ",
     roomNum: 0,
     row: 4,
-    square: 8
+    square: 8,
+    itemNum: 0
   };
   startGame = () => {
+    this.resetColor();
     this.setState({
       gameText: "Entering...",
+      gameText2: "",
       roomNum: 0,
       row: 4,
-      square: 8
+      square: 8,
+      itemNum: 0
     });
     this.setColor(this.state.row, this.state.square, "green");
     setTimeout(() => {
@@ -25,12 +30,16 @@ class App extends Component {
   //Checks a room for an exit. If no exit found, move to the next room. Recursive.
   roomCheck = () => {
     let checker = Math.round(Math.random() * 10);
+
     this.setState({ gameText: "Searching room..." });
+
+    this.lootCheck();
 
     if (checker == 5) {
       setTimeout(() => {
         this.setState({
-          gameText: "Found the exit! Rooms found: " + this.state.roomNum
+          gameText: "Found the exit! Rooms found: " + this.state.roomNum,
+          gameText2: "Number of items found: " + this.state.itemNum
         });
       }, 3000);
     } else {
@@ -40,92 +49,99 @@ class App extends Component {
 
   newRoom = () => {
     setTimeout(() => {
-      this.setState({
-        gameText: "Found another room!",
-        roomNum: this.state.roomNum + 1
-      }, this.selectDirection());
-    }, 2000);
+      this.setState(
+        {
+          gameText: "Found another room!",
+          roomNum: this.state.roomNum + 1
+        },
+        this.selectDirection()
+      );
+    }, 3000);
 
     setTimeout(() => {
       this.roomCheck();
-    }, 6000);
+    }, 5000);
   };
 
+  lootCheck = () => {
+    let lootChance = Math.floor(Math.random() * 100);
+
+    if (lootChance >= 90) {
+      this.setState({
+        // gameText2: "Found loot! Chance: " + lootChance + "%",
+        itemNum: this.state.itemNum + 1
+      });
+    }
+  };
   selectDirection = () => {
     let west = -1;
     let east = 1;
     let north = -1;
     let south = 1;
 
-     let randDirection =  Math.floor(Math.random() * 4)
+    let randDirection = Math.floor(Math.random() * 4);
 
-     if(randDirection == 3)
-     {
-       if(this.state.square-1 < 0){
-          console.log("Out of bounds. West")
-          this.selectDirection();
-       }else{
-          this.setState({
-            square: this.state.square + west 
-          })
-          this.setColor(this.state.row, this.state.square + 1, "blue")
-          this.setColor(this.state.row, (this.state.square), "green")
-          console.log("Moved west")
+    if (randDirection == 3) {
+      if (this.state.square - 1 < 0) {
+        console.log("Out of bounds. West");
+        this.selectDirection();
+      } else {
+        this.setState({
+          square: this.state.square + west
+        });
+        this.setColor(this.state.row, this.state.square + 1, "blue");
+        this.setColor(this.state.row, this.state.square, "green");
+        console.log("Moved west");
       }
-     }else if(randDirection == 2){
-
-        if(this.state.square+1 > 16){
-          console.log("Out of bounds. East")
-          this.selectDirection();
-        }else{
+    } else if (randDirection == 2) {
+      if (this.state.square + 1 > 16) {
+        console.log("Out of bounds. East");
+        this.selectDirection();
+      } else {
         this.setState({
           square: this.state.square + east
-        })
-        this.setColor(this.state.row, this.state.square - 1, "blue")
-        this.setColor(this.state.row, (this.state.square), "green")
-        console.log("Moved east")
+        });
+        this.setColor(this.state.row, this.state.square - 1, "blue");
+        this.setColor(this.state.row, this.state.square, "green");
+        console.log("Moved east");
       }
-
-     }else if(randDirection == 1){
-        if(this.state.row-1 < 0){
-          console.log("Out of bounds. North")
-          this.selectDirection();
-        }else{
-          this.setState({
-            row: this.state.row + north
-          })
-          this.setColor(this.state.row + 1, this.state.square, "blue")
-          this.setColor(this.state.row, (this.state.square), "green")
-          console.log("Moved north")
-        }
-
-     }else if(randDirection == 0){
-      if(this.state.row+1 > 16){
-        console.log("Out of bounds. South")
+    } else if (randDirection == 1) {
+      if (this.state.row - 1 < 0) {
+        console.log("Out of bounds. North");
         this.selectDirection();
-      }else{
+      } else {
+        this.setState({
+          row: this.state.row + north
+        });
+        this.setColor(this.state.row + 1, this.state.square, "blue");
+        this.setColor(this.state.row, this.state.square, "green");
+        console.log("Moved north");
+      }
+    } else if (randDirection == 0) {
+      if (this.state.row + 1 > 9) {
+        console.log("Out of bounds. South");
+        this.selectDirection();
+      } else {
         this.setState({
           row: this.state.row + south
-        })
-        this.setColor(this.state.row - 1, this.state.square, "blue")
-        this.setColor(this.state.row, (this.state.square), "green")
-        console.log("Moved south")
+        });
+        this.setColor(this.state.row - 1, this.state.square, "blue");
+        this.setColor(this.state.row, this.state.square, "green");
+        console.log("Moved south");
+      }
     }
-   }
+  };
 
-  }
-
-
-  grid = () => {
-    let grid = [];
+  row = () => {
+    let row = [];
     for (let i = 0; i < 9; i++) {
-      grid.push(
+      row.push(
         <div className="row" id={"row" + i}>
           {this.square()}
         </div>
       );
     }
-    return grid;
+    return row;
   };
 
   square = () => {
@@ -140,23 +156,30 @@ class App extends Component {
     // let randRow = Math.floor(Math.random() * 9)
     // let randSquare=  Math.floor(Math.random() * 17)
     //Gets children of row (selected by array this.grid()[0])
-    var c = document.getElementById(this.grid()[row].props.id).childNodes
+    var c = document.getElementById(this.row()[row].props.id).childNodes;
 
     //Sets background color of child of selected row (select by array c[0])
-    c[square].style.backgroundColor = color
+    c[square].style.backgroundColor = color;
 
     // console.log("Row index: " + randRow + " Square index: " + randSquare)
   };
 
+  resetColor = () => {
+    for (let i = 0; i < 9; i++) {
+      var c = document.getElementById(this.row()[i].props.id).childNodes;
 
-
-
+      for (let j = 0; j < 17; j++) {
+        c[j].style.backgroundColor = "white";
+      }
+    }
+  };
   render() {
     return (
       <div className="game">
         {this.state.gameText}
         <button onClick={this.startGame}> Start</button>
-        <div className="gridContainer">{this.grid()}</div>
+        <div className="gridContainer">{this.row()}</div>
+        {this.state.gameText2}
       </div>
     );
   }
