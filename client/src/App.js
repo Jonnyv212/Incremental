@@ -12,6 +12,7 @@ class App extends Component {
     itemNum: 0
   };
   startGame = () => {
+    document.getElementById("startButton").disabled = true;
     this.resetColor();
     this.setState({
       gameText: "Entering...",
@@ -36,10 +37,15 @@ class App extends Component {
     this.lootCheck();
 
     if (checker == 5) {
+      document.getElementById("startButton").disabled = false;
       setTimeout(() => {
         this.setState({
           gameText: "Found the exit! Rooms found: " + this.state.roomNum,
-          gameText2: "Number of items found: " + this.state.itemNum
+          gameText2: "Number of items found: " + this.state.itemNum,
+          roomNum: 0,
+          row: 4,
+          square: 8,
+          itemNum: 0
         });
       }, 3000);
     } else {
@@ -80,6 +86,7 @@ class App extends Component {
     let south = 1;
 
     let randDirection = Math.floor(Math.random() * 4);
+    // let randDirection = 0;
 
     if (randDirection == 3) {
       if (this.state.square - 1 < 0) {
@@ -118,7 +125,7 @@ class App extends Component {
         console.log("Moved north");
       }
     } else if (randDirection == 0) {
-      if (this.state.row + 1 > 9) {
+      if (this.state.row + 1 >= 9) {
         console.log("Out of bounds. South");
         this.selectDirection();
       } else {
@@ -153,8 +160,6 @@ class App extends Component {
   };
 
   setColor = (row, square, color) => {
-    // let randRow = Math.floor(Math.random() * 9)
-    // let randSquare=  Math.floor(Math.random() * 17)
     //Gets children of row (selected by array this.grid()[0])
     var c = document.getElementById(this.row()[row].props.id).childNodes;
 
@@ -176,10 +181,17 @@ class App extends Component {
   render() {
     return (
       <div className="game">
-        {this.state.gameText}
-        <button onClick={this.startGame}> Start</button>
-        <div className="gridContainer">{this.row()}</div>
-        {this.state.gameText2}
+        <div className="content">
+          <div className="topContent">
+            <div className="gameText">{this.state.gameText}</div>
+            <button id="startButton" onClick={this.startGame}>
+              {" "}
+              Start
+            </button>
+          </div>
+          <div className="gridContainer">{this.row()}</div>
+          {this.state.gameText2}
+        </div>
       </div>
     );
   }
